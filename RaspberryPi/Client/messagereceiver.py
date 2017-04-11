@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 from threading import Thread
 import json
+import time
+import RPi.GPIO as GPIO
 
 
-class MessageReceiver(Thread):
+
+
+class GPS(Thread):
     """
     This is the message receiver class. The class inherits Thread, something that
     is necessary to make the MessageReceiver start a new thread, and it allows
@@ -11,15 +15,22 @@ class MessageReceiver(Thread):
     """
 
     def __init__(self, client, connection):
-        """
-        This method is executed when creating a new MessageReceiver object
-        """
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
+        GPIO.setup(18,GPIO.OUT) #Red
+        GPIO.setup(19,GPIO.OUT) #Green
+        GPIO.setup(20,GPIO.OUT) #Yellow
+
+
+
 
         # Flag to run thread as a deamon
-        super(MessageReceiver, self).__init__()
+        super(GPS, self).__init__()
         self.daemon = True
         self.connection = connection
         self.client = client
+        self.pin_high= 20
+
 
         # TODO: Finish initialization of MessageReceiver
 
@@ -30,24 +41,35 @@ class MessageReceiver(Thread):
             # print Message
             # print response
             Message = json.loads(str(response))
+            print "Message[signal]=%s", %(Message['signal'])
+            turn_led_On(Message['signal'])
 
-            if Message['response'] == 'History':
-                # print Message['content']
-                history = Message['content']
-                # print history
-                # history['test'] = 2
-                # print history
-                histlen = len(history)
-                for msg in range(0, histlen):
-                    var = json.loads(str(history[msg]))
-                    print "<%s> [%s]: %s" % (var['timestamp'], var['sender'], var['content'])
-            else:
-                print "<%s> [%s]: %s" % (Message['timestamp'], Message['sender'], Message['content'])
+    
+    def turn_led_On(colour)
 
-    def check_history(hist):
-        history = []
-        i = 0
-        for msg in hist:
-            history[i] = json.loads(hist[msg])
-            i += 1
-        return history
+
+
+        if colour == "red":
+            print "come back signal"
+            GPIO.output(18,GPIO.HIGH)
+            self.pin_high = 18
+
+        elif colour == "Yellow"
+            print   "do something"
+            GPIO.output(20,GPIO.HIGH)
+            self.pin_high = 20
+        elif colour == "Green"
+            print "All good"
+            GPIO.output(19,GPIO.HIGH)
+            self.pin_high = 19
+
+
+
+
+
+        return 1
+
+    def turn_led_Off(colour)
+
+
+        return 1
