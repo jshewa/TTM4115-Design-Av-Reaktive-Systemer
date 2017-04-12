@@ -4,7 +4,7 @@ import json
 import thread
 import time
 import datetime
-from MessageReceiver import MessageReceiver
+from gps_do import GPS
 import random
 # from MessageParser import MessageParser
 
@@ -40,14 +40,14 @@ class Client:
     def run(self):
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
-        self.get_data()
+        self.get_pos()
         self.send_payload()
         curr_time = datetime.datetime.fromtimestamp(
             time.time()).strftime('%H:%M:%S')
         print "<%s> [%s]: ----*Connection established*---- " % (curr_time, self.name)
         self.receive_message()
         while 1:
-            self.get_data()
+            self.get_pos()
             self.send_payload()
 
     def disconnect(self):
@@ -68,7 +68,7 @@ class Client:
         self.connection.sendall(json.dumps(self.payload))
         # print "Sending request\n"
 
-    def get_data(self):
+    def get_pos(self):
 
         # print "Possible requests: \n login\n logout \n msg \n names \n help\n
         # disconnect\n"
