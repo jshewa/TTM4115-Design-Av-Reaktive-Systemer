@@ -7,12 +7,8 @@ import RPi.GPIO as GPIO
 
 
 
-class GPS(Thread):
-    """
-    This is the message receiver class. The class inherits Thread, something that
-    is necessary to make the MessageReceiver start a new thread, and it allows
-    the chat client to both send and receive messages at the same time
-    """
+class gpsrecieve(Thread):
+ 
     RED = 18
     YELLOW = 19
     GREEN = 20
@@ -46,11 +42,11 @@ class GPS(Thread):
             # print Message
             # print response
             Message = json.loads(str(response))
-            print "Message[signal]=%s", %(Message['signal'])
+            print "Message[signal]=",Message['signal'],"\n"
             switch_led(Message['signal'])
 
     
-    def switch_led(colour)
+    def switch_led(colour):
 
 
         if colour == "red":
@@ -68,7 +64,7 @@ class GPS(Thread):
             self.pin_high = GREEN
 
 
-    def init_led()
+    def init_led():
         GPIO.output(RED,GPIO.LOW)
         GPIO.output(YELLOW,GPIO.LOW)
         GPIO.output(GREEN, GPIO.HIGH)
