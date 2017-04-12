@@ -4,9 +4,29 @@ import json
 import thread
 import time
 import datetime
-from gps_do import GPS
+import serial, time
+import smbus
+import math
+import RPi.GPIO as GPIO
+import struct
+import sys
 import random
-# from MessageParser import MessageParser
+from self_reciever import selfrecieve
+
+ser = serial.Serial('/dev/serial0',  9600, timeout = 0)	#Open the serial port at 9600 baud
+ser.flush()
+
+def readlineCR():
+    rv = ""
+    while True:
+        time.sleep(0.001)	# This is the critical part.  A small pause 
+        					# works really well here.
+        ch = ser.read()        
+        rv += ch
+        if ch=='\r' or ch=='':
+            return rv
+ 
+
 
 
 def get_random_port():
@@ -14,9 +34,6 @@ def get_random_port():
 
 
 class Client:
-    """
-    This is the chat client class
-    """
 
     def __init__(self, host, server_port):
         """
@@ -31,24 +48,33 @@ class Client:
 
         self.server_port = server_port
         self.host = host
-        self.payload = {'request': None, 'content': None}
-        self.response = {'timestamp': None, 'sender': None,
-                         'response': None, 'content': None}
-        self.name = "undefined"
+        self.payload = {'id': None, 'time': None,'lat' : None, 'long' : None}
+        self.id = "00"
+        self.time = None
+        self.fix  = None
+        self.sats = None
+        self.alt  = None
+        self.lat  = None
+        self.lat_ns = None
+        self.long = None
+        self.long_ew= None
+        self.inp=[]
+        self.GGA=[]
+
+
+
+
+
         self.run()
 
     def run(self):
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
-        self.get_pos()
-        self.send_payload()
         curr_time = datetime.datetime.fromtimestamp(
             time.time()).strftime('%H:%M:%S')
-        print "<%s> [%s]: ----*Connection established*---- " % (curr_time, self.name)
+        print "<%s> [%s]: ----*Connection established*---- " % (curr_time, self.id)
         self.receive_message()
-        while 1:
-            self.get_pos()
-            self.send_payload()
+        self.do()
 
     def disconnect(self):
         print "Closing Socket\n"
@@ -59,59 +85,77 @@ class Client:
 
     def receive_message(self):
         # TODO: Handle incoming message
-        rsp = MessageReceiver(self, self.connection)
+        # TODO: TURN LED ON
+        rsp = gpsrecieve(self, self.connection)
         rsp.start()
 
     def send_payload(self):
         # TODO: Handle sending of a payload
 
         self.connection.sendall(json.dumps(self.payload))
-        # print "Sending request\n"
 
-    def get_pos(self):
+    def do(self):
+        
+        f=open("self_data.csv",'w')	#Open file to log the data
+        print " Writing file"
+        f.write("name,latitude,longitude\n")	#Write the header to the top of the file
+        print " write file done"
+        ind=0
+        while True:
+            try:
+                print "READING FILE"
+                self.read()	#Read from self
+                self.vals()	#Get the individial values
+                print "Time:",t,"Fix status:",fix,"Sats in view:",sats,"Altitude",alt,"Lat:",lat,lat_ns,"Long:",long,long_ew
+                s=str(t)+","+str(float(self.lat)/100)+","+str(float(self.long)/100)+"\n"	
+                f.write(s)	#Save to file
+                self.payload['time'] = self.time
+                self.payload['long'] = self.lat
+                self.payload['lat' ] = self.long
 
-        # print "Possible requests: \n login\n logout \n msg \n names \n help\n
-        # disconnect\n"
-
-        while 1:
-            time.sleep(0.3)
-            curr_time = datetime.datetime.fromtimestamp(
-                time.time()).strftime('%H:%M:%S')
-            self.payload['request'] = raw_input(
-                "<%s> [request]: " % (curr_time))
-            if self.payload['request'] == "login":
-                self.payload['content'] = raw_input(
-                    "<%s> [enter username]:" % (curr_time))
-                self.name = self.payload['content']
-                break
-            elif self.payload['request'] == "logout":
-                self.payload['content'] = None
                 self.send_payload()
-                self.disconnect()
-                break
-            elif self.payload['request'] == "msg":
-                self.payload['content'] = raw_input(
-                    "<%s> [enter msg]: " % (curr_time))
-                break
-            elif self.payload['request'] == "names":
-                self.payload['content'] = None
-                break
-            elif self.payload['request'] == "help":
-                self.payload['content'] = None
-                break
-            else:
-                print "<%s> [%s]: Invalid request!" % (curr_time, self.name)
+                time.sleep(2)
 
-        print "<%s> [%s]: Request accepted" % (curr_time, self.name)
+            except IndexError:
+                print "Unable to read"
+            except KeyboardInterrupt:
+                f.close()
+                print "Exiting"
+                sys.exit(0)
+            except:
+                print "Raw String appears to be empty."
 
-    # More methods may be needed!
+
+    #Read set GPS pos
+	def read(self):
+		while True:
+			# self.inp=ser.readline()
+			self.inp = readlineCR().strip()
+			if self.inp[:6] =='$GPGGA': # GGA data , packet 1, has all the data we need
+				break
+			time.sleep(0.1)
+		try:
+			ind=self.inp.index('$GPGGA',5,len(self.inp))	#Sometimes multiple self data packets come into the stream. Take the data only after the last '$GPGGA' is seen
+			self.inp=self.inp[ind:]
+		except ValueError:
+			print ""
+		self.GGA=self.inp.split(",")	#Split the stream into individual parts
+
+
+    	#Split the data into individual elements
+	def vals(self):
+		self.time=self.GGA[1]
+		self.lat=self.GGA[2]
+		self.lat_ns=self.GGA[3]
+		self.long=self.GGA[4]
+		self.long_ew=self.GGA[5]
+		self.fix=self.GGA[6]
+		self.sats=self.GGA[7]
+		self.alt=self.GGA[9]
+		return [self.time,self.fix,self.sats,self.alt,self.lat,self.lat_ns,self.long,self.long_ew]
+ 
 
 
 if __name__ == '__main__':
-    """
-    This is the main method and is executed when you type "python Client.py"
-    in your terminal.
-
-    No alterations are necessary
-    """
+  
     client = Client('10.22.46.97', 13000)
