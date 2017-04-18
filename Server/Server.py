@@ -1,4 +1,7 @@
 __author__ = 'Jakob'
+
+
+__author__ = 'Jakob'
 import socket
 import json
 
@@ -56,16 +59,16 @@ class Server():
             "lat": lat,
         }
 
+    def sendSignalToPie(self,color,conn):
+        jsonObject = self.get_payloadToPie()
+        conn.send(json.dumps(str(jsonObject).encode('utf-8')))
 
-    def send_payload(self,payload):
-        self.pieSocket.sendall(json.dumps(payload))
 
 
 if __name__ == '__main__':
 
     server = Server(13000)
     server.run()
-
 
 
 
