@@ -5,6 +5,7 @@ import json
 class Server():
 
     def __init__(self,port):
+        self.id = 1
         self.pieSocket = socket.socket()
         self.ip=socket.gethostname()
         print(self.ip)
@@ -29,10 +30,14 @@ class Server():
                 received_string = conn.recv(4096)
                 received_json = json.loads(received_string.decode('utf-8'))
                 print(received_json)
+                id = received_json['id']
 
-
-                conn2,addr2 = self.appSocket.accept()
-                conn2.send(json.dumps(str(received_json)).encode('utf-8'))
+                #Autorisering, men den er hardkodet :))
+                if self.id == id:
+                    conn2,addr2 = self.appSocket.accept()
+                    conn2.send(json.dumps(str(received_json)).encode('utf-8'))
+                else:
+                    print("fuck off very much yes")
 
             except Exception as e:
                 print (e.message)
