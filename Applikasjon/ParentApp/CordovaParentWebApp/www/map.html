@@ -32,12 +32,29 @@
 				fillOpacity: 0.3
 			});
 
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(function (position) {
+					areaLatlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+					allowedArea.center = areaLatlng
+				}, function handleNoGeolocation(errorFlag) {
+					if (errorFlag == true) {
+						alert("Geolocation service failed.");
+					} else {
+						alert("Your browser doesn't support geolocation.");
+					}
+				});
+			}
+
+
 			allowedArea.setMap(map);
 			marker.setMap(map);
 
 
 		}
 	</script>
+
+
+
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7Bg924UypdEeYDbYWinovALjF1Rm8kjg&callback=myMap"></script>
 
 </body>
