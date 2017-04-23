@@ -1,6 +1,9 @@
-﻿function myMap() {
+﻿(function () {
+	//also map center
+	var parentLatlng = new google.maps.LatLng(63.419093, 10.394088);
+	var doubleClicked = false;
 	var mapProp = {
-		center: new google.maps.LatLng(63.419467, 10.393198),
+		center: new google.maps.LatLng(63.419467, 10.393198), //63.419467, 10.393198 <- park center
 		zoom: 17,
 		mapTypeId: 'satellite'
 	};
@@ -31,18 +34,68 @@
 		anchor: new google.maps.Point(12, 34)
 	};
 
-	var parentLatlng = new google.maps.LatLng(63.419093, 10.394088);
-	var parentMarker = new google.maps.Marker({
+	var parentMarker = new SlidingMarker({
 		position: parentLatlng, animation: google.maps.Animation.DROP,
-		icon: parentIcon
+		icon: parentIcon,
+		duration: 7500
+	});
+	parentMarker.setEasing(null);
+	var backInParentLatlng = new google.maps.LatLng(63.41903, 10.39423);
+	parentMarker.addListener('click', function () {
+		if (meetingUp) {
+			parentMarker.setPosition(backInParentLatlng);
+		}
+	});
+	parentMarker.addListener('dblclick', function () {
+		map.setCenter(parentMarker.position);
+		childCenter = false;
 	});
 
-	var childLatlng = new google.maps.LatLng(63.419092, 10.39402);
-	var childMarker = new google.maps.Marker({
+
+	var outsideLatlng = new google.maps.LatLng(63.418967, 10.394368);
+	var backInLatlng = new google.maps.LatLng(63.419023, 10.394252);
+	var meetupLatlng = new google.maps.LatLng(63.419025, 10.39425);
+	var aftermeetupLatlng = new google.maps.LatLng(63.419024, 10.39424);
+	var childLatlng = new google.maps.LatLng(63.419092, 10.39406);
+	var childClickCount = 0;
+	var meetingUp = false;
+	var childCenter = false;
+	var childMarker = new SlidingMarker({
 		position: childLatlng, animation: google.maps.Animation.DROP,
-		icon: allgoodIcon
+		icon: allgoodIcon,
+		duration: 8000,
+	});
+	childMarker.setEasing(null);
+	childMarker.addListener('dblclick', function () {
+		doubleClicked = true;
+		map.setCenter(childMarker.getAnimationPosition());
+		childCenter = true;
 	});
 
+	var handleChildSingleClick = function () {
+		if (!doubleClicked) {
+			if (childClickCount == 0) {
+				childMarker.setPosition(outsideLatlng);
+			}
+			if (childClickCount == 1) {
+				childMarker.setPosition(backInLatlng);
+			}
+			if (childClickCount == 2) {
+				childMarker.setDuration(2500);
+				childMarker.setPosition(meetupLatlng);
+				meetingUp = true;
+			}
+			if (childClickCount == 3) {
+				window.setTimeout(childMarker.setPosition(aftermeetupLatlng), 1000);
+			}
+			childClickCount += 1;
+		}
+	};
+
+	childMarker.addListener('click', function () {
+		doubleClicked = false;
+		window.setTimeout(handleChildSingleClick, 350);
+	}, false);
 	var allUL = new google.maps.LatLng(63.41991, 10.39232);
 	var allUR = new google.maps.LatLng(63.420106, 10.39386);
 	var allLR = new google.maps.LatLng(63.419016, 10.394405);
@@ -59,15 +112,27 @@
 		fillOpacity: 0.12
 	});
 
-	if (navigator.geolocation) { // goes on the "parent marker"
-		navigator.geolocation.getCurrentPosition(function (position) {
-			parentLatlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
-			parentMarker.position = parentLatlng
-		}, function handleNoGeolocation(errorFlag) {
-		});
-	}
+	childMarker.addListener('animationposition_changed', function () {
+		if (childCenter) {
+			map.setCenter(childMarker.getAnimationPosition());
+		}
+		var icon =
+			google.maps.geometry.poly.containsLocation(childMarker.getAnimationPosition(), allowedArea) ?
+			allgoodIcon : outsideIcon;
+		childMarker.setIcon(icon);
+		if (childMarker.getAnimationPosition() == meetupLatlng) {
+			childMarker.setIcon(meetupIcon);
+		}
+		if (childMarker.getAnimationPosition() == aftermeetupLatlng) {
+			childMarker.setIcon(allgoodIcon);
+		}
+	}, false);
+
+	parentMarker.addListener('animationposition_changed', function () {
+		map.setCenter(parentMarker.getAnimationPosition());
+	});
 
 	allowedArea.setMap(map);
 	parentMarker.setMap(map);
 	childMarker.setMap(map);
-};
+})();
