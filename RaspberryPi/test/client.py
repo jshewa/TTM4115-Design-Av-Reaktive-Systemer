@@ -137,32 +137,32 @@ class Client:
 
 
     #Read set GPS pos
-        def read(self):
-            while True:
-                # self.inp=ser.readline()
-                self.inp = readlineCR().strip()
-                if self.inp[:6] =='$GPGGA': # GGA data , packet 1, has all the data we need
-                    break
-                time.sleep(0.1)
+    def read(self):
+        while True:
+        # self.inp=ser.readline()
+            self.inp = readlineCR().strip()
+            if self.inp[:6] =='$GPGGA': # GGA data , packet 1, has all the data we need
+                break
+            time.sleep(0.1)
         try:
-                ind=self.inp.index('$GPGGA',5,len(self.inp))	#Sometimes multiple self data packets come into the stream. Take the data only after the last '$GPGGA' is seen
-                self.inp=self.inp[ind:]
+            ind=self.inp.index('$GPGGA',5,len(self.inp))	#Sometimes multiple self data packets come into the stream. Take the data only after the last '$GPGGA' is seen
+            self.inp=self.inp[ind:]
         except ValueError:
-                print ""
+            print ""
         self.GGA=self.inp.split(",")	#Split the stream into individual parts
 
 
     #Split the data into individual elements
     def vals(self):
-            self.time=self.GGA[1]
-            self.lat=self.GGA[2]
-            self.lat_ns=self.GGA[3]
-            self.long=self.GGA[4]
-            self.long_ew=self.GGA[5]
-            self.fix=self.GGA[6]
-            self.sats=self.GGA[7]
-            self.alt=self.GGA[9]
-            return [self.time,self.fix,self.sats,self.alt,self.lat,self.lat_ns,self.long,self.long_ew]
+        self.time=self.GGA[1]
+        self.lat=self.GGA[2]
+        self.lat_ns=self.GGA[3]
+        self.long=self.GGA[4]
+        self.long_ew=self.GGA[5]
+        self.fix=self.GGA[6]
+        self.sats=self.GGA[7]
+        self.alt=self.GGA[9]
+        return [self.time,self.fix,self.sats,self.alt,self.lat,self.lat_ns,self.long,self.long_ew]
  
 
 
