@@ -1,25 +1,60 @@
 <!DOCTYPE html>
+
 <html>
-<head>
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
-	<meta name="format-detection" content="telephone=no">
-	<meta name="msapplication-tap-highlight" content="no">
-	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
-	<link rel="stylesheet" type="text/css" href="css/index.css">
-</head>
-<body style=background-color: #E5E4E2;>
+    <body style=background-color: #E5E4E2;>
+    <head>
+        
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+            <meta name="format-detection" content="telephone=no">
+                <meta name="msapplication-tap-highlight" content="no">
+                    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+                        <link rel="stylesheet" type="text/css" href="css/index.css">
+                            <title>Send freeze signal</title>
+                            </head>
+    <body style=background-color: #E5E4E2;>
+        <div class="app" onclick="setColor('button', '#FFFF00')";>
+            <h1>Send freeze signal</h1>
+            <div id="deviceready" class="blink">
+                <p class="event listening">Press button</p>
+                <p class="event received">Press button</p>
+            </div>
+        </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+    </body>
+    
+    <body style=background-color: #E5E4E2;>
+        
+        
+        <button class="button" >All good</button>
+        
+        <button class="button button3";>Out of reach!</button>
+        <button class="button button4" >Meet up</button>
+        <button class="button button5">Get position</button>
+        <button class="button button6" id="button" > Status </button>
+        
+    </body>
+    
+    <body>
+        
+        
+    </body>
+    
+    <script>
+        var count = 1;
+        function setColor(btn, color) {
+            var property = document.getElementById(btn);
+            if (count == 0) {
+                property.style.backgroundColor = "#4CAF50"
+                count = 1;
+            }
+            
+            else {
+                property.style.backgroundColor = "#FFFF00"
+                count = 0;
+            }
+        }
+    </script>
 
-	<button class="button buttonGreen">All good</button>
-	<button class="button buttonRed">Out of reach!</button>
-	<button class="button buttonYellow">Meet up</button>
-
-	<button id="map-btn" class="button buttonMap">Map</button>
-
-	<script type="text/javascript" src="cordova.js"></script>
-	<script type="text/javascript" src="scripts/platformOverrides.js"></script>
-	<script type="text/javascript" src="scripts/index.js"></script>
-	<script src="js/jquery-3.1.1.min.js"></script>
-	<script src="js/jquery.mobile-1.4.5.min.js"></script>
-	<script src="js/btn-clicks.js"></script>
-</body>
+  </body>
 </html>
