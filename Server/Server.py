@@ -31,10 +31,12 @@ class Server():
             try:
                 conn,addr = self.pieSocket.accept()
                 received_string = conn.recv(4096)
-                received_json = json.loads(received_string.decode('utf-8'))
-                print(received_json)
+                if received_string:
+                    received_json = json.loads(received_string.decode('utf-8'))
+                    print(received_json)
+                else:
+                    break
                 id = received_json['id']
-
                 #Autorisering, men den er hardkodet :))
                 if self.id == id:
                     conn2,addr2 = self.appSocket.accept()
@@ -45,6 +47,8 @@ class Server():
             except Exception as e:
                 print (e.message)
                 return
+            finally:
+                conn.close()
 
     def get_payloadToPie(signal):
         return {
