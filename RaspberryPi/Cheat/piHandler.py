@@ -52,7 +52,7 @@ class piHandler(Thread):
     def run(self):
         # TODO: Make MessageReceiver receive and handle payloads
         while True:
-          response = self.connection.recv(1024)
+            response = self.connection.recv(1024)
             # print Message
             # print response
             Message = json.loads(str(response))

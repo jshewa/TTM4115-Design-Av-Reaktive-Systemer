@@ -4,7 +4,7 @@ import json
 import thread
 import time
 import datetime
-from piHandler.py import piHandler
+from piHandler import piHandler
 import random
 
 
@@ -30,7 +30,7 @@ class Client:
 
         self.server_port = server_port
         self.host = host
-        self.payload = {'id': 1, 'lat': 2, 'long' : 3}
+        self.payload = {'ID': 1, 'LAT': 2, 'LONG' : 3}
         self.run()
 
     def run(self):
