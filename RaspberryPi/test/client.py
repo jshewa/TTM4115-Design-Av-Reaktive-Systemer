@@ -11,7 +11,7 @@ import RPi.GPIO as GPIO
 import struct
 import sys
 import random
-#from gps_do import gpsrecieve
+from gps_do import gpsrecieve
 
 ser = serial.Serial('/dev/serial0',  9600, timeout = 0)	#Open the serial port at 9600 baud
 ser.flush()
@@ -49,7 +49,7 @@ class Client:
         self.server_port = server_port
         self.host = host
         self.payload = {'id': None, 'time': None,'lat' : None, 'long' : None}
-        self.id = "00"
+        self.id = "1"
         self.time = None
         self.fix  = None
         self.sats = None
@@ -74,7 +74,7 @@ class Client:
         curr_time = datetime.datetime.fromtimestamp(
             time.time()).strftime('%H:%M:%S')
         print "<%s> [%s]: ----*Connection established*---- " % (curr_time, self.id)
-        #self.receive_message()
+        self.receive_message()
         self.do()
 
     def disconnect(self):
@@ -84,11 +84,11 @@ class Client:
 
         # TODO: Handle disconnection/done
 
-    #def receive_message(self):
+    def receive_message(self):
         # TODO: Handle incoming message
         # TODO: TURN LED ON
-        #rsp = gpsrecieve(self, self.connection)
-        #rsp.start()
+        rsp = gpsrecieve(self, self.connection)
+        rsp.start()
 
     def send_payload(self):
         # TODO: Handle sending of a payload
@@ -105,26 +105,27 @@ class Client:
         
         while True:
             try:
-                """print "READING FILE"
-                self.read()	#Read from self
-                self.vals()	#Get the individial values
-                print "Time:",t,"Fix status:",fix,"Sats in view:",sats,"Altitude",alt,"Lat:",lat,lat_ns,"Long:",long,long_ew
-                s=str(t)+","+str(float(self.lat)/100)+","+str(float(self.long)/100)+"\n"	
-                f.write(s)	#Save to file
-                self.payload['time'] = self.time
-                self.payload['long'] = self.lat
-                self.payload['lat' ] = self.long"""
+                print "READING FILE"
+                #self.read()	#Read from self
+                #self.vals()	#Get the individial values
+                #print "Time:",t,"Fix status:",fix,"Sats in view:",sats,"Altitude",alt,"Lat:",lat,lat_ns,"Long:",long,long_ew
+                #s=str(t)+","+str(float(self.lat)/100)+","+str(float(self.long)/100)+"\n"	
+                #f.write(s)	#Save to file
+                #self.payload['time'] = self.time
+                #self.payload['long'] = self.lat
+                #self.payload['lat' ] = self.long
                 
                 self.payload['time'] = 2
                 self.payload['long'] = 24
                 self.payload['lat' ] = 50
-                   
+                
+                print "sending"
                 self.send_payload()
                 time.sleep(2)
                 
 
-            #except IndexError:
-                #print "Unable to read"
+            except IndexError:
+                print "Unable to read"
             #except KeyboardInterrupt:
                 #f.close()
                 #print "Exiting"
@@ -136,7 +137,7 @@ class Client:
                 #self.payload['lat' ] = self.long
 
 
-    #Read set GPS pos
+   
     def read(self):
         while True:
         # self.inp=ser.readline()
