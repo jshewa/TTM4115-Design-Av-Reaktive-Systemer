@@ -7,7 +7,7 @@ class App:
     def __init__(self,port):
         self.client = socket.socket()
         self.port = port
-        self.client.connect((socket.gethostname(), self.port))
+        self.client.connect(("10.22.66.215", port))
 
     def run(self):
         print("Starting connection")

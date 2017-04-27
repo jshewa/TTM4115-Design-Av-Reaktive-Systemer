@@ -17,6 +17,7 @@ class Client:
         print("Starting connection")
         while True:
             try:
+                print(self.payload)
                 self.send_payload()
             except Exception as e:
                 print(e)
@@ -24,8 +25,8 @@ class Client:
 
 
     def send_payload(self):
-        self.randomVals(self.payload)
-        self.client.sendall(json.dumps(str(self.payload)).encode('utf-8'))
+        #self.randomVals(self.payload)
+        self.client.sendall(json.dumps(self.payload).encode('utf-8'))
 
     def randomVals(self,payload):
         random_tall1 = random.randint(0,10000)
