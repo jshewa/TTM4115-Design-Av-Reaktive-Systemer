@@ -1,0 +1,91 @@
+# -*- coding: utf-8 -*-
+import SocketServer
+import json
+import datetime
+import re
+import time
+import os
+"""
+Variables and functions that must be used by all the ClientHandler objects
+must be written here (e.g. a dictionary for connected clients)
+"""
+
+
+
+
+
+
+
+
+
+
+
+class ClientHandler(SocketServer.BaseRequestHandler):
+    """
+    This is the ClientHandler class. Everytime a new client connects to the
+    server, a new ClientHandler object will be created. This class represents
+    only connected clients, and not the server itself. If you want to write
+    logic for the server, you must write it outside this class
+    """
+
+
+    def handle(self):
+        """
+        This method handles the connection between a client and the server.
+        """
+        self.ip = self.client_address[0]
+        self.port = self.client_address[1]
+        self.connection = self.request
+        self.response = {'signal': "red"}
+        print '  |  <New client> ', self.ip, ':', str(self.port), ' |'
+        print '  *-----------------------------------*'
+
+    # Loop that listens for messages from the client
+        #response = fill_response()
+        #self.connection.sendall(json.dumps(response).encode('utf-8'))
+        while True:
+            received_string = self.connection.recv(4096)
+            print "new position recieved"
+
+            if received_string:
+                # TODO: Add handling of received payload from client
+
+                print received_string
+                received = json.loads(received_string)
+                print type(received)
+
+                
+                ID = received['ID']
+                LAT = received['LAT']
+                LONG = received['LONG']
+
+                print "id: " + str(ID) + " lat: "+ str(LAT) + " long: " + str(LONG)
+
+                self.connection.sendall(json.dumps(self.response))
+
+class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+    """
+    This class is present so that each client connected will be ran as a own
+    thread. In that way, all clients will be served by the server.
+
+    No alterations are necessary
+    """
+    allow_reuse_address = True
+
+
+if __name__ == "__main__":
+    """
+    This is the main method and is executed when you type "python Server.py"
+    in your terminal.
+
+    No alterations are necessary
+    """
+    HOST, PORT = '0.0.0.0', 13000
+    os.system("clear")
+    print '\n  *------------------*'
+    print '  | ' '\x1b[1;1;33m', 'Server running', '\x1b[0m', '|'
+    print '  *-----------------------------------*'
+
+    # Set up and initiate the TCP server
+    server = ThreadedTCPServer((HOST, PORT), ClientHandler)
+    server.serve_forever()
