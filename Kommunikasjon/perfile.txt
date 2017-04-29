@@ -1,0 +1,4 @@
+latmaks=4
+latmin=1
+langmaks=10
+langmin=5
